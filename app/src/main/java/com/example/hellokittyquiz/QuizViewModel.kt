@@ -11,6 +11,7 @@ class QuizViewModel : ViewModel() {
     public var numQuestionsLeft = 4 //This should ideally pull from questions.size in MainActivity.kt
     public var questionsAnswered = BooleanArray(numQuestionsLeft)
     public var cheatedOnQuestion = BooleanArray(numQuestionsLeft)
+    public var answerState = IntArray(numQuestionsLeft)
 
     init {
         Log.d(TAG, "ViewModel instance created")

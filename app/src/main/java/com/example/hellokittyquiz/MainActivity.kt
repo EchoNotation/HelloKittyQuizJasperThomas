@@ -2,14 +2,13 @@ package com.example.hellokittyquiz
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 
@@ -20,6 +19,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var previousButton : ImageButton
     private lateinit var nextButton : ImageButton
     private lateinit var textView : TextView
+    private lateinit var backgroundLayout : LinearLayout
 
     private val REQUEST_CODE_CHEAT = 0
 
@@ -33,12 +33,18 @@ class MainActivity : AppCompatActivity() {
     private var numCorrectAnswers = 0
     private var numQuestionsLeft = questions.size
     private var questionsAnswered = BooleanArray(questions.size)
+    private var answerState = IntArray(questions.size)
+
+    private var cheatSound = MediaPlayer.create(this,R.raw.cheat)
+    private var correctSound = MediaPlayer.create(this,R.raw.correct)
+    private var incorrectSound = MediaPlayer.create(this,R.raw.incorrect)
 
     private var index = 0
     private val TAG = "MainActivity" //Logging identifier for this program
 
     fun updateQuestion() {
         textView.setText(questions[index].questionID)
+        setBackground()
     }
 
     fun checkAnswer(userAnswer : Boolean) {
@@ -53,13 +59,19 @@ class MainActivity : AppCompatActivity() {
 
         if(quizViewModel.cheatedOnQuestion[index]) {
             toast.setText(R.string.judgement_toast)
+            answerState[index] = 3
+            cheatSound.start()
         }
         else if(questions[index].answer == userAnswer) {
             toast.setText(R.string.correct_toast)
             numCorrectAnswers++
+            answerState[index] = 1
+            correctSound.start()
         }
         else {
             toast.setText(R.string.incorrect_toast)
+            answerState[index] = 2
+            incorrectSound.start()
         }
 
         toast.show()
@@ -90,6 +102,7 @@ class MainActivity : AppCompatActivity() {
         previousButton = findViewById(R.id.previous_button)
         nextButton = findViewById(R.id.next_button)
         textView = findViewById(R.id.text_view)
+        backgroundLayout = findViewById(R.id.background_layout)
 
         updateQuestion()
 
@@ -124,6 +137,23 @@ class MainActivity : AppCompatActivity() {
             updateQuestion()
         }
     }
+    fun setBackground(){
+        //0 = Unattempted, 1 = Correct, 2 = Incorrect, 3 = Cheated
+        var color = "@color/purple"
+        if (answerState[index] == 0){
+            color = "@color/white"
+        }
+        else if(answerState[index] == 1){
+            color = "@color/green"
+        }
+        else if(answerState[index] == 2){
+            color = "@color/red"
+        }
+        else{
+            color = "@color/yellow"
+        }
+        backgroundLayout.setBackgroundColor(Color.parseColor(color))
+    }
 
     //Log processes after creation
 
@@ -140,6 +170,7 @@ class MainActivity : AppCompatActivity() {
         quizViewModel.numCorrectAnswers = numCorrectAnswers
         quizViewModel.numQuestionsLeft = numQuestionsLeft
         quizViewModel.questionsAnswered = questionsAnswered
+        quizViewModel.answerState = answerState
     }
 
     override fun onResume() {
@@ -150,6 +181,7 @@ class MainActivity : AppCompatActivity() {
         numCorrectAnswers = quizViewModel.numCorrectAnswers
         numQuestionsLeft = quizViewModel.numQuestionsLeft
         questionsAnswered = quizViewModel.questionsAnswered
+        answerState = quizViewModel.answerState
         updateQuestion()
     }
 
