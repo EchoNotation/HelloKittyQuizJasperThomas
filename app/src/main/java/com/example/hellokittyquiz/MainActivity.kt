@@ -38,49 +38,49 @@ class MainActivity : AppCompatActivity() {
     private var index = 0
     private val TAG = "MainActivity" //Logging identifier for this program
 
-    fun updateQuestion() {
+    private fun updateQuestion() {
         textView.setText(questions[index].questionID)
         setBackground()
     }
 
-    fun checkAnswer(userAnswer : Boolean) {
+    private fun checkAnswer(userAnswer : Boolean) {
         if(questionsAnswered[index]) return //Do not allow multiple attempts at the same question
         questionsAnswered[index] = true
 
-        //val toast = Toast(this)
-        //toast.duration = Toast.LENGTH_SHORT
+        val toast = Toast(this)
+        toast.duration = Toast.LENGTH_SHORT
 
         //Changing gravity doesn't do anything on sufficiently high build numbers, which includes this version running on my phone
-        //toast.setGravity(Gravity.TOP, 0, 0)
+        toast.setGravity(Gravity.TOP, 0, 0)
 
         if(quizViewModel.cheatedOnQuestion[index]) {
-            //Toast.makeText(applicationContext, R.string.judgement_toast, Toast.LENGTH_LONG).show()
+            toast.setText(R.string.judgement_toast)
             answerState[index] = 3
             var cheatSound = MediaPlayer.create(this,R.raw.cheat)
             cheatSound.start()
         }
         else if(questions[index].answer == userAnswer) {
             var correctSound = MediaPlayer.create(this,R.raw.correct)
-            //toast.setText(R.string.correct_toast)
+            toast.setText(R.string.correct_toast)
             numCorrectAnswers++
             answerState[index] = 1
             correctSound.start()
         }
         else {
-            //toast.setText(R.string.incorrect_toast)
+            toast.setText(R.string.incorrect_toast)
             answerState[index] = 2
             var incorrectSound = MediaPlayer.create(this,R.raw.incorrect)
             incorrectSound.start()
         }
 
-        //toast.show()
+        toast.show()
 
         numQuestionsLeft--
         if(numQuestionsLeft <= 0) {
             val scoreToast = Toast(this)
-            //scoreToast.duration = Toast.LENGTH_LONG
-            //scoreToast.setText("Quiz Finished! Your score was " + (( numCorrectAnswers * 100)/ questions.size) + "%")
-            //scoreToast.show()
+            scoreToast.duration = Toast.LENGTH_LONG
+            scoreToast.setText("Quiz Finished! Your score was " + (( numCorrectAnswers * 100)/ questions.size) + "%")
+            scoreToast.show()
         }
         setBackground()
     }
@@ -137,9 +137,9 @@ class MainActivity : AppCompatActivity() {
             updateQuestion()
         }
     }
-    fun setBackground(){
+    private fun setBackground(){
         //0 = Unattempted, 1 = Correct, 2 = Incorrect, 3 = Cheated
-        var color = "#FFBB33FF"
+        lateinit var color : String
         if (answerState[index] == 0){
             color = "#FFFFFFFF"
         }
